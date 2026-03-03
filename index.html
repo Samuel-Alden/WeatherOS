@@ -13,9 +13,6 @@
 <meta name="apple-mobile-web-app-title" content="WeatherOS">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="description" content="Live weather with human advice, particles, and smart insights.">
-<link rel="stylesheet" href="style.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WeatherOS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -79,7 +76,114 @@ body::before {
 #heat-shimmer { position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 1s; }
 #heat-shimmer canvas { width: 100%; height: 100%; }
 
-.app-wrapper { position: relative; z-index: 10; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; }
+/* ── MOBILE: single column ── */
+.app-wrapper {
+  position: relative; z-index: 10; width: 100%; max-width: 480px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+/* ── DESKTOP: side panels ── */
+@media (min-width: 900px) {
+  body { justify-content: center; align-items: center; padding: 32px 24px 40px; overflow: hidden; min-height: 100vh; }
+
+  .app-wrapper {
+    max-width: 1500px; width: 100%;
+    display: grid;
+    grid-template-columns: 360px 1fr 380px;
+    grid-template-rows: auto auto 1fr;
+    gap: 0;
+    align-items: start;
+  }
+
+  /* Search bar spans full width on top */
+  .search-card {
+    grid-column: 1 / -1;
+    margin-bottom: 18px;
+    border-radius: 20px;
+  }
+
+  /* Storm alert spans full width */
+  #storm-alert-wrap {
+    grid-column: 1 / -1;
+    margin-bottom: 14px;
+  }
+
+  /* Left panel */
+  #panel-left {
+    grid-column: 1;
+    grid-row: 3;
+    display: flex; flex-direction: column; gap: 12px;
+    padding-right: 16px;
+    transform: translateX(-40px);
+    opacity: 0;
+    animation: slideInLeft 0.7s 0.2s cubic-bezier(0.23,1,0.32,1) forwards;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto; scrollbar-width: none;
+  }
+  #panel-left::-webkit-scrollbar { display: none; }
+
+  /* Main center card */
+  #main-card {
+    grid-column: 2;
+    grid-row: 3;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto; scrollbar-width: none;
+  }
+  #main-card::-webkit-scrollbar { display: none; }
+
+  /* Right panel */
+  #panel-right {
+    grid-column: 3;
+    grid-row: 3;
+    display: flex; flex-direction: column; gap: 12px;
+    padding-left: 16px;
+    transform: translateX(40px);
+    opacity: 0;
+    animation: slideInRight 0.7s 0.2s cubic-bezier(0.23,1,0.32,1) forwards;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto; scrollbar-width: none;
+  }
+  #panel-right::-webkit-scrollbar { display: none; }
+
+  @keyframes slideInLeft  { to { transform: translateX(0); opacity: 1; } }
+  @keyframes slideInRight { to { transform: translateX(0); opacity: 1; } }
+
+  /* Panel cards */
+  .panel-card {
+    background: var(--glass);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    padding: 20px 22px;
+    overflow: visible;
+  }
+
+  /* On desktop, hide these sections from main card — they live in side panels */
+  #main-card .aqi-section,
+  #main-card .pollen-section,
+  #main-card .commute-section,
+  #main-card .besttime-section,
+  #main-card .forecast-card,
+  #main-card .daily-card,
+  #main-card .vibe-wfh,
+  #main-card .mood-section,
+  #main-card .sec-div-aqi,
+  #main-card .sec-div-pollen,
+  #main-card .sec-div-commute,
+  #main-card .sec-div-besttime,
+  #main-card .sec-div-hourly,
+  #main-card .sec-div-daily,
+  #main-card .sec-div-vibe,
+  #main-card .sec-div-mood {
+    display: none;
+  }
+
+  /* Panel section label styling */
+  .panel-card .sec-label { margin-bottom: 12px; }
+}
+
 
 /* ── CARD ── */
 .card {
@@ -223,19 +327,19 @@ body::before {
   align-items: center; justify-content: center; font-weight: 800; font-size: 20px;
   border: 3px solid; flex-shrink: 0;
 }
-.aqi-details { flex: 1; }
+.aqi-details { flex: 1; min-width: 0; }
 .aqi-label { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-.aqi-desc { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+.aqi-desc { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); line-height: 1.5; word-break: break-word; }
 .aqi-bar { height: 6px; border-radius: 3px; margin-top: 8px; overflow: hidden; background: rgba(255,255,255,0.08); }
 .aqi-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(0.23,1,0.32,1); }
 
 /* ── POLLEN ── */
 .pollen-section { padding: 16px 32px; }
 .pollen-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
-.pollen-item { background: var(--glass2); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px; text-align: center; }
+.pollen-item { background: var(--glass2); border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px 8px; text-align: center; overflow: hidden; }
 .pollen-emoji { font-size: 20px; margin-bottom: 4px; }
 .pollen-type { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-.pollen-level { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 50px; display: inline-block; }
+.pollen-level { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 50px; display: inline-block; white-space: nowrap; }
 .p-low  { background: rgba(74,222,128,0.15); color: #4ade80; }
 .p-mod  { background: rgba(251,191,36,0.15); color: #fbbf24; }
 .p-high { background: rgba(248,113,113,0.15); color: #f87171; }
@@ -270,6 +374,15 @@ body::before {
 .commute-rating { display: flex; justify-content: center; gap: 2px; margin-bottom: 6px; }
 .commute-rating span { font-size: 9px; }
 .commute-note { font-size: 10px; color: var(--text-muted); line-height: 1.4; font-family: 'DM Mono', monospace; }
+
+/* Panel commute override — row layout fits better in narrow panel */
+.panel-card .commute-grid { grid-template-columns: 1fr; gap: 8px; }
+.panel-card .commute-card { display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; }
+.panel-card .commute-card.recommended::before { top: 50%; transform: translateY(-50%); right: 10px; }
+.panel-card .commute-icon { font-size: 22px; margin-bottom: 0; flex-shrink: 0; }
+.panel-card .commute-mode { margin-bottom: 2px; }
+.panel-card .commute-rating { justify-content: flex-start; margin-bottom: 2px; }
+.panel-card .commute-info { flex: 1; min-width: 0; }
 
 /* ── VIBE + WFH ── */
 .vibe-wfh { padding: 16px 32px; display: flex; gap: 12px; align-items: center; }
@@ -359,8 +472,12 @@ body::before {
   .commute-grid,.pollen-grid { gap: 8px; }
   .bottom-bar { padding: 14px 22px 18px; }
 }
+
+/* On desktop, hide the panel containers on mobile (they don't exist on mobile) */
+@media (max-width: 899px) {
+  #panel-left, #panel-right { display: none !important; }
+}
 </style>
->>>>>>> a10c029438703ae56d91e02af2c435e8dcf37f68
 </head>
 <body>
 
@@ -373,11 +490,7 @@ body::before {
 
 <div class="app-wrapper" id="app">
 
-<<<<<<< HEAD
   <!-- Search (spans full width on desktop) -->
-=======
-  <!-- Search -->
->>>>>>> a10c029438703ae56d91e02af2c435e8dcf37f68
   <div class="card search-card">
     <div class="search-row">
       <div class="search-input-wrap">
@@ -390,7 +503,6 @@ body::before {
     <div id="fav-strip"></div>
   </div>
 
-<<<<<<< HEAD
   <!-- Storm Alert (spans full width) -->
   <div id="storm-alert-wrap"></div>
 
@@ -406,12 +518,6 @@ body::before {
   </div>
 
   <!-- Main card (center) -->
-=======
-  <!-- Storm Alert (shown conditionally) -->
-  <div id="storm-alert-wrap"></div>
-
-  <!-- Main card -->
->>>>>>> a10c029438703ae56d91e02af2c435e8dcf37f68
   <div class="card main-card" id="main-card">
     <div class="loading-card">
       <span class="loading-icon"><i class="fa-solid fa-circle-notch"></i></span>
@@ -419,7 +525,6 @@ body::before {
     </div>
   </div>
 
-<<<<<<< HEAD
   <!-- RIGHT PANEL (desktop only) -->
   <div id="panel-right">
     <div class="panel-card" id="panel-vibe-mood"></div>
@@ -430,14 +535,18 @@ body::before {
 
 </div>
 
-<script src="script.js"></script>
-</body>
-</html>
-=======
-</div>
-
 <script>
-const API_KEY = 'f2ccc88c088a994ccc68c2eade304019';
+function getApiKey() {
+  let key = localStorage.getItem('wos_api_key');
+  if (!key) {
+    key = prompt('🌤️ Welcome to WeatherOS!\n\nPaste your OpenWeatherMap API key to get started:\n(Get a free key at openweathermap.org)');
+    if (key && key.trim()) {
+      localStorage.setItem('wos_api_key', key.trim());
+    }
+  }
+  return key ? key.trim() : '';
+}
+const API_KEY = getApiKey();
 let weatherData = null, forecastData = null;
 let isFahrenheit = false;
 let favorites = JSON.parse(localStorage.getItem('wos_favs') || '[]');
@@ -1201,6 +1310,7 @@ function renderWeather(data, forecast, aqiData) {
     <div class="bottom-bar">
       <button id="report-btn" onclick="reportWeather()"><i class="fa-solid fa-satellite-dish"></i> Report Local Weather</button>
       <button id="share-btn" onclick="shareWeather()" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
+      <button id="share-btn" onclick="resetApiKey()" title="Reset API Key" style="font-size:12px;padding:13px 14px;"><i class="fa-solid fa-key"></i></button>
     </div>
     <div class="updated-row"><span class="live-dot"></span>Live · Updated ${now_str}</div>
   `;
@@ -1233,8 +1343,133 @@ function renderWeather(data, forecast, aqiData) {
     if (arc && sunrise && sunset) drawSunArc(arc, sunrise, sunset);
   }, 200);
 
+  // ── POPULATE SIDE PANELS (desktop only) ───────────────────────────────
+  populatePanels({
+    aqiData, aqiInfo, pollen, commute, vibe, wfh, mood,
+    hourlyHTML, dailyHTML, bestTime, bestBarHTML, wscore
+  });
+
   startClock();
   renderFavStrip();
+}
+
+function populatePanels({aqiData, aqiInfo, pollen, commute, vibe, wfh, mood, hourlyHTML, dailyHTML, bestTime, bestBarHTML, wscore}) {
+  // Only run if panels exist (desktop)
+  const pLeft  = document.getElementById('panel-left');
+  const pRight = document.getElementById('panel-right');
+  if (!pLeft || !pRight) return;
+
+  // ── LEFT PANEL ────────────────────────────────────────────────────────
+
+  // Panel favs
+  const pfav = document.getElementById('panel-fav-list');
+  if (pfav) {
+    if (favorites.length) {
+      pfav.innerHTML = favorites.map(f =>
+        `<div class="fav-chip" data-city="${f}" style="margin-bottom:6px;width:100%;justify-content:space-between;">
+          <span><i class="fa-solid fa-star" style="color:#fbbf24;font-size:9px;margin-right:6px;"></i>${f}</span>
+          <span class="rm" onclick="removeFav(event,'${f}')">✕</span>
+        </div>`
+      ).join('');
+      pfav.querySelectorAll('.fav-chip').forEach(c => c.addEventListener('click', ()=>searchCity(c.dataset.city)));
+    } else {
+      pfav.innerHTML = `<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);text-align:center;padding:8px 0;">Star a city to save it here</div>`;
+    }
+  }
+
+  // AQI panel
+  const pAqi = document.getElementById('panel-aqi');
+  if (pAqi) pAqi.innerHTML = `
+    <span class="sec-label">Air Quality</span>
+    <div class="aqi-row">
+      <div class="aqi-circle" style="color:${aqiInfo.color};border-color:${aqiInfo.color};">
+        <span>${aqiData||'—'}</span>
+      </div>
+      <div class="aqi-details">
+        <div class="aqi-label" style="color:${aqiInfo.color}">${aqiInfo.label}</div>
+        <div class="aqi-desc">${aqiInfo.desc}</div>
+        <div class="aqi-bar"><div class="aqi-fill" style="width:${aqiInfo.pct}%;background:${aqiInfo.color}"></div></div>
+      </div>
+    </div>`;
+
+  // Pollen panel
+  const pPollen = document.getElementById('panel-pollen');
+  if (pPollen) pPollen.innerHTML = `
+    <span class="sec-label">Pollen Levels</span>
+    <div class="pollen-grid">
+      ${pollen.map(p=>`
+      <div class="pollen-item">
+        <div class="pollen-emoji">${p.emoji}</div>
+        <div class="pollen-type">${p.type}</div>
+        <div class="pollen-level ${p.cls}">${p.level}</div>
+      </div>`).join('')}
+    </div>`;
+
+  // Commute panel
+  const pCommute = document.getElementById('panel-commute');
+  if (pCommute) pCommute.innerHTML = `
+    <span class="sec-label">Commute Advisor</span>
+    <div class="commute-grid">
+      ${commute.map(c=>`
+      <div class="commute-card ${c.recommended?'recommended':c.avoid?'avoid':''}">
+        <div class="commute-icon">${c.icon}</div>
+        <div class="commute-info">
+          <div class="commute-mode">${c.mode}</div>
+          <div class="commute-rating">
+            ${[1,2,3,4,5].map(n=>`<span style="color:${n<=c.rating?'var(--accent)':'rgba(255,255,255,0.15)'}">●</span>`).join('')}
+          </div>
+          <div class="commute-note">${c.note}</div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+
+  // ── RIGHT PANEL ───────────────────────────────────────────────────────
+
+  // Vibe + Mood panel
+  const pVibeMood = document.getElementById('panel-vibe-mood');
+  if (pVibeMood) pVibeMood.innerHTML = `
+    <span class="sec-label">Vibe & Mood</span>
+    <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:16px;">
+      <span style="display:inline-flex;align-items:center;gap:7px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:14px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--accent);font-family:'DM Mono',monospace;flex:1;">
+        <i class="fa-solid ${vibe.icon}" style="font-size:14px;"></i>${vibe.label}
+      </span>
+      <span class="wfh-badge ${wfh.cls}" style="flex:1;border-radius:14px;padding:10px 14px;font-size:13px;"><i class="fa-solid ${wfh.icon}"></i>${wfh.label}</span>
+    </div>
+    <div style="text-align:center;padding:12px 0 4px;">
+      <span style="font-size:44px;display:block;animation:moodBob 3s ease-in-out infinite;line-height:1.2;">${mood.emoji}</span>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:8px;letter-spacing:1px;">${mood.text.toUpperCase()}</div>
+    </div>`;
+
+  // Best time panel
+  const pBestTime = document.getElementById('panel-besttime');
+  if (pBestTime) {
+    if (bestTime) {
+      pBestTime.innerHTML = `
+        <span class="sec-label">Best Time Outside</span>
+        <div class="besttime-bar" style="height:48px;">${bestBarHTML}</div>
+        <div class="bt-labels">
+          ${bestTime.items.map(h=>{const hr=new Date(h.dt*1000).getHours();return`<span class="bt-label">${hr===0?'12a':hr<12?`${hr}a`:hr===12?'12p':`${hr-12}p`}</span>`;}).join('')}
+        </div>
+        <div class="besttime-badge" style="margin-top:10px;"><i class="fa-solid fa-clock-rotate-left"></i> ~${bestTime.time}</div>`;
+    } else {
+      pBestTime.innerHTML = `<span class="sec-label">Best Time Outside</span><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);padding:8px 0;">No forecast data available</div>`;
+    }
+  }
+
+  // Hourly panel
+  const pHourly = document.getElementById('panel-hourly');
+  if (pHourly) pHourly.innerHTML = hourlyHTML
+    ? `<span class="sec-label">Hourly Forecast</span>
+       <div class="forecast-scroll" style="padding-bottom:6px;gap:7px;">
+         ${hourlyHTML.replace(/flex: 0 0 72px/g,'flex:0 0 62px').replace(/font-size: 20px/g,'font-size:16px').replace(/font-size: 14px/g,'font-size:12px')}
+       </div>`
+    : `<span class="sec-label">Hourly Forecast</span><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);">No forecast data</div>`;
+
+  // Daily panel — cleaner approach
+  const pDaily = document.getElementById('panel-daily');
+  if (pDaily) pDaily.innerHTML = dailyHTML
+    ? `<span class="sec-label">5-Day Forecast</span>${dailyHTML}`
+    : `<span class="sec-label">5-Day Forecast</span><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);">No forecast data</div>`;
 }
 
 // ── FAVORITES ──────────────────────────────────────────────────────────
@@ -1248,11 +1483,28 @@ function toggleFav() {
 
 function renderFavStrip() {
   const strip = document.getElementById('fav-strip');
-  if (!favorites.length) { strip.innerHTML=''; return; }
-  strip.innerHTML = favorites.map(f =>
-    `<span class="fav-chip" data-city="${f}"><i class="fa-solid fa-star" style="color:#fbbf24;font-size:9px;"></i>${f}<span class="rm" onclick="removeFav(event,'${f}')">✕</span></span>`
-  ).join('');
-  strip.querySelectorAll('.fav-chip').forEach(c => c.addEventListener('click', ()=>searchCity(c.dataset.city)));
+  if (!favorites.length) { strip.innerHTML=''; }
+  else {
+    strip.innerHTML = favorites.map(f =>
+      `<span class="fav-chip" data-city="${f}"><i class="fa-solid fa-star" style="color:#fbbf24;font-size:9px;"></i>${f}<span class="rm" onclick="removeFav(event,'${f}')">✕</span></span>`
+    ).join('');
+    strip.querySelectorAll('.fav-chip').forEach(c => c.addEventListener('click', ()=>searchCity(c.dataset.city)));
+  }
+  // Refresh panel fav list too
+  const pfav = document.getElementById('panel-fav-list');
+  if (pfav) {
+    if (favorites.length) {
+      pfav.innerHTML = favorites.map(f =>
+        `<div class="fav-chip" data-city="${f}" style="margin-bottom:6px;width:100%;justify-content:space-between;">
+          <span><i class="fa-solid fa-star" style="color:#fbbf24;font-size:9px;margin-right:6px;"></i>${f}</span>
+          <span class="rm" onclick="removeFav(event,'${f}')">✕</span>
+        </div>`
+      ).join('');
+      pfav.querySelectorAll('.fav-chip').forEach(c => c.addEventListener('click', ()=>searchCity(c.dataset.city)));
+    } else {
+      pfav.innerHTML = `<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);text-align:center;padding:8px 0;">Star a city to save it here</div>`;
+    }
+  }
 }
 
 function removeFav(e, city) {
@@ -1276,6 +1528,13 @@ function shareWeather() {
 function reportWeather() {
   const ok=confirm("📍 Does the weather shown match what you're experiencing right now?\n\nOK = Accurate · Cancel = Flag discrepancy");
   alert(ok?"✅ Thanks! Your report helps keep WeatherOS accurate.":"🚨 Discrepancy noted. We'll cross-check nearby stations. Thank you!");
+}
+
+function resetApiKey() {
+  if (confirm('Reset your API key? You will be asked to enter a new one on reload.')) {
+    localStorage.removeItem('wos_api_key');
+    location.reload();
+  }
 }
 
 // ── FETCH ──────────────────────────────────────────────────────────────
@@ -1372,7 +1631,82 @@ function init() {
 
 renderFavStrip();
 init();
+
+// ── PWA SERVICE WORKER ────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('[WeatherOS] SW registered:', reg.scope))
+      .catch(err => console.warn('[WeatherOS] SW failed:', err));
+  });
+}
+
+// ── PWA INSTALL PROMPT ────────────────────────────────────────────────
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+
+  // Show install banner after 3 seconds if not already installed
+  setTimeout(() => {
+    if (deferredInstallPrompt) showInstallBanner();
+  }, 3000);
+});
+
+function showInstallBanner() {
+  const existing = document.getElementById('install-banner');
+  if (existing) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'install-banner';
+  banner.style.cssText = `
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: rgba(167,139,250,0.15); backdrop-filter: blur(20px);
+    border: 1px solid rgba(167,139,250,0.4); border-radius: 20px;
+    padding: 14px 20px; display: flex; align-items: center; gap: 14px;
+    z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: slideUp 0.4s cubic-bezier(0.23,1,0.32,1);
+    font-family: 'Syne', sans-serif; color: #f0f0f0; white-space: nowrap;
+  `;
+  banner.innerHTML = `
+    <span style="font-size:22px;">📲</span>
+    <div>
+      <div style="font-size:13px;font-weight:700;">Install WeatherOS</div>
+      <div style="font-size:11px;color:rgba(240,240,240,0.6);font-family:'DM Mono',monospace;">Add to home screen for the full app experience</div>
+    </div>
+    <button onclick="installPWA()" style="background:var(--accent);border:none;border-radius:12px;padding:9px 16px;color:#fff;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Install</button>
+    <button onclick="document.getElementById('install-banner').remove()" style="background:none;border:none;color:rgba(240,240,240,0.5);font-size:18px;cursor:pointer;padding:4px;">✕</button>
+  `;
+
+  // Add slideUp keyframe if not present
+  if (!document.getElementById('pwa-style')) {
+    const style = document.createElement('style');
+    style.id = 'pwa-style';
+    style.textContent = '@keyframes slideUp { from { transform: translateX(-50%) translateY(80px); opacity:0; } to { transform: translateX(-50%) translateY(0); opacity:1; } }';
+    document.head.appendChild(style);
+  }
+
+  document.body.appendChild(banner);
+}
+
+async function installPWA() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  console.log('[WeatherOS] Install outcome:', outcome);
+  deferredInstallPrompt = null;
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.remove();
+}
+
+// Hide banner if already installed
+window.addEventListener('appinstalled', () => {
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.remove();
+  deferredInstallPrompt = null;
+  console.log('[WeatherOS] App installed successfully!');
+});
 </script>
 </body>
 </html>
->>>>>>> a10c029438703ae56d91e02af2c435e8dcf37f68
